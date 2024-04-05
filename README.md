@@ -1,1 +1,1 @@
-Sedge是一个利用Python制作的浏览器引擎，依赖lxml和tkinter，简单，现阶段提供对<body><title><p><h1><a><ul><ol><li>等标签的支持
+Sedge是一个利用Python制作的浏览器引擎，依赖lxml和tkinter，提供对CSS的简单支持

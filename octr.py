@@ -3,9 +3,11 @@ from tkinter import *
 from tkinter import messagebox
 import requests as r
 from PIL import Image,ImageTk
-import platform,cv2,sys
+import platform,cv2,sys,math,re
 from sedge_setter import *
 
+def inx(dic,v):
+	return v in list(dic.keys())
 def attrib_in_label(be_s,sub):
 	return be_s in list(sub.keys())
 history = []
@@ -32,16 +34,16 @@ def go():
 			history.append(textv.get())
 			rendering(text=r.get(textv.get(),headers=headers).text)
 		except r.exceptions.ConnectionError:
-			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html") as d:
+			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html",encoding="utf-8") as d:
 				texts = d.read()
 				rendering(text=texts,fail=True)
 		except r.exceptions.MissingSchema:
-			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html") as d:
+			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html",encoding="utf-8") as d:
 				texts = d.read()
 				rendering(text=texts,fail=True,website=textv.get())
 	else:
 		try:
-			with open(textv.get()[7:]) as d:
+			with open(textv.get()[7:],encoding="utf-8") as d:
 				texts = d.read()
 				history.append(textv.get())
 				if textv.get()[7:].split(".")[1] == ".sedgeml":
@@ -49,7 +51,7 @@ def go():
 				else:
 					rendering(text=texts,typ="htm")
 		except FileNotFoundError:
-			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\internet.html") as d:
+			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\internet.html",encoding="utf-8") as d:
 				texts = d.read()
 				rendering(text=texts,fail=True,website=textv.get())
 def when_a():
@@ -109,12 +111,13 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 		global a_to
 		if fail:
 			print("Error[02]:Page ",website," does not exist")
-		true_tag = ["h1","p","ol","ul","li","body","footer","head","header","title","html","img"]
+		true_tag = ["h1","p","ol","ul","li","body","footer","head","header","title","html","img",]
 		print("Task[0]:Page Created.")
 		html = etree.HTML(text)
 		res = html.xpath("//*")
 		print("Task[1]:Code Splited.")
 		v = []
+		css_list = {}
 		pc = 0
 		for i in res:
 			v.append({"tag":i.tag,"text":i.text,"attrib":i.attrib,"id":str(pc)})
@@ -133,6 +136,15 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 		tx = 5
 		for i in v:
 			if i["tag"] == "p" or i["tag"] == "dt" or i["tag"] == "dd":
+				ls = 0
+				lns = ""
+				for ys in i["text"]:
+					if ls >= 54:
+						lns += "\n"
+						ls = 0
+					ls+=1
+					lns+=ys
+				i["text"] = lns
 				print("Task[2-"+i["id"]+"]:Label <p> rendered")
 				if not attrib_in_label("style",i["attrib"]):
 					cv.create_text(x,y,text = i['text'],font=p_font,fill=fg,anchor=NW)
@@ -147,7 +159,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							backc = j.split(":")[1]
 					if backc != "white":
 						cv.create_rectangle(x,y,1000,y+30*(str(i["text"]).count("\n")+1),fill=backc)
-					if text_align == "center":
+					if text_align == "center" or {"text-align":None}:
 						cv.create_text(400,y,text = i['text'],font=p_font,fill=fg)
 					elif text_align == "right":
 						cv.create_text(800,y,text = i['text'],font=p_font,fill=fg,anchor=NE)
@@ -157,15 +169,24 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						print("Unknown value of \"text-align\" in \"style\"")
 				y+=35*(str(i["text"]).count("\n")+1)
 				x=5
+			elif i["tag"] == "style":
+				"""Return somthing like:css_list={"h1":{"text-align":"Center"}}"""
+				ty = i["text"].replace(" ","").replace("\t","").replace("\n","")
+				css_list = css_parser(ty)
 			elif i["tag"] == "code":
 				cv.create_rectangle(25,y-3,775,y+22.5*(str(i["text"]).count("\n")+1)+3,fill="#F8F8F2")
 				cv.create_text(x,y,text = "     "+str(i['text']).replace("\n","\n     "),font=p_font,fill=fg,anchor=NW)
 				y+=35*(str(i["text"]).count("\n")+1)
 				x=5
 			elif i["tag"] == "h1":
+				if not inx(css_list,"h1"):
+					css_list["h1"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h1> rendered")
 				if not attrib_in_label("style",i["attrib"]):
-					cv.create_text(x,y,text = i['text'],font=h1_font,fill=fg,anchor=NW)
+					if not css_list["h1"]["text-align"] == "CENTER":
+						cv.create_text(x,y,text = i['text'],font=h1_font,fill=fg,anchor=NW)
+					else:
+						cv.create_text(400,y,text = i['text'],font=h1_font,fill=fg)
 				else:
 					styles = i["attrib"]["style"].split(";")
 					text_align="left"
@@ -176,8 +197,9 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							backc = j.split(":")[1]
 					if backc != "white":
 						cv.create_rectangle(x,y,1000,y+58,fill=backc)
-					if text_align == "center":
+					if css_list["h1"]["text-align"] == "CENTER" or text_align == "center":
 						cv.create_text(400,y,text = i['text'],font=h1_font,fill=fg)
+
 					elif text_align == "right":
 						cv.create_text(800,y,text = i['text'],font=h1_font,fill=fg,anchor=NE)
 					elif text_align == "left":
@@ -187,6 +209,8 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				y+=58
 				x=5
 			elif i["tag"] == "h2":
+				if not inx(css_list,"h2"):
+					css_list["h2"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h2> rendered")
 				if not attrib_in_label("style",i["attrib"]):
 					cv.create_text(x,y,text = i['text'],font=h2_font,fill=fg,anchor=NW)
@@ -200,7 +224,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							backc = j.split(":")[1]
 					if backc != "white":
 						cv.create_rectangle(x,y,1000,y+52,fill=backc)
-					if text_align == "center":
+					if text_align == "center" or css_list["h2"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h2_font,fill=fg)
 					elif text_align == "right":
 						cv.create_text(800,y,text = i['text'],font=h2_font,fill=fg,anchor=NE)
@@ -211,6 +235,8 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				y+=52
 				x=5
 			elif i["tag"] == "h3":
+				if not inx(css_list,"h3"):
+					css_list["h3"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h3> rendered")
 				if not attrib_in_label("style",i["attrib"]):
 					cv.create_text(x,y,text = i['text'],font=h3_font,fill=fg,anchor=NW)
@@ -224,7 +250,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							backc = j.split(":")[1]
 					if backc != "white":
 						cv.create_rectangle(x,y,1000,y+48,fill=backc)
-					if text_align == "center":
+					if text_align == "center" or css_list["h3"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h3_font,fill=fg)
 					elif text_align == "right":
 						cv.create_text(800,y,text = i['text'],font=h3_font,fill=fg,anchor=NE)
@@ -235,6 +261,8 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				y+=48
 				x=5
 			elif i["tag"] == "h4":
+				if not inx(css_list,"h4"):
+					css_list["h4"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h4> rendered")
 				if not attrib_in_label("style",i["attrib"]):
 					cv.create_text(x,y,text = i['text'],font=h4_font,fill=fg,anchor=NW)
@@ -248,7 +276,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							backc = j.split(":")[1]
 					if backc != "white":
 						cv.create_rectangle(x,y,1000,y+42,fill=backc)
-					if text_align == "center":
+					if text_align == "center" or css_list["h4"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h4_font,fill=fg)
 					elif text_align == "right":
 						cv.create_text(800,y,text = i['text'],font=h4_font,fill=fg,anchor=NE)
@@ -259,6 +287,8 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				y+42
 				x=5
 			elif i["tag"] == "h5":
+				if not inx(css_list,"h5"):
+					css_list["h5"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h5> rendered")
 				if not attrib_in_label("style",i["attrib"]):
 					cv.create_text(x,y,text = i['text'],font=h5_font,fill=fg,anchor=NW)
@@ -272,7 +302,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							backc = j.split(":")[1]
 					if backc != "white":
 						cv.create_rectangle(x,y,1000,y+42,fill=backc)
-					if text_align == "center":
+					if text_align == "center" or css_list["h5"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h5_font,fill=fg)
 					elif text_align == "right":
 						cv.create_text(800,y,text = i['text'],font=h5_font,fill=fg,anchor=NE)
@@ -283,6 +313,8 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				y+=42
 				x=5
 			elif i["tag"] == "h6":
+				if not inx(css_list,"h6"):
+					css_list["h6"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h6> rendered")
 				if not attrib_in_label("style",i["attrib"]):
 					cv.create_text(x,y,text = i['text'],font=h6_font,fill=fg,anchor=NW)
@@ -296,11 +328,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							backc = j.split(":")[1]
 					if backc != "white":
 						cv.create_rectangle(x,y,1000,y+32,fill=backc)
-					if text_align == "center":
+					if text_align == "center" or css_list["h6"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h6_font,fill=fg)
-					elif text_align == "right":
+					elif text_align == "right" or css_list["h6"] == "RIGHT":
 						cv.create_text(800,y,text = i['text'],font=h6_font,fill=fg,anchor=NE)
-					elif text_align == "left":
+					elif text_align == "left" or css_list["h6"] == "LEFT":
 						cv.create_text(x,y,text = i['text'],font=h6_font,fill=fg,anchor=NW)
 					else:
 						print("Unknown value of \"text-align\" in \"style\"")
@@ -429,9 +461,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						com = exit_sedge_button_command
 					if i["attrib"]["command"] == "SedgeKit.ApplicationInfo.BrowserVersion()":
 						com = get_version_button_command_browser
-					if i["attrib"]["command"] == "SedgeKit.ApplicationInfo.BrowserVersion()":
+					if i["attrib"]["command"] == "SedgeKit.ApplicationInfo.EnginVersion()":
 						com = get_version_button_command_kit
-				but = Button(cv,text=i["text"], width=12,height=1,command=com,bg=bg,state=disa)
+					if i["attrib"]["command"] == "SedgeKit.ApplicationControl.ReturnNow()":
+						com = deb_n
+				but = Button(cv,text=i["text"], width=math.floor(1.2*len(i["text"]))+1,height=1,command=com,bg=bg,state=disa)
 				cv.create_window(x,y,anchor="nw",window=but)
 				y+=40
 
@@ -443,6 +477,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						print("Warning[01]:Unknown Tag(Label) ",i["tag"],".")
 						if wt[2] == "true":
 							sys.exit(1)
+
 	else:
 		text = text.split("**")
 		print(text)
