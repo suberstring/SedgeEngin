@@ -213,7 +213,10 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 					css_list["h2"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h2> rendered")
 				if not attrib_in_label("style",i["attrib"]):
-					cv.create_text(x,y,text = i['text'],font=h2_font,fill=fg,anchor=NW)
+					if not css_list["h2"]["text-align"] == "CENTER":
+						cv.create_text(x,y,text = i['text'],font=h2_font,fill=fg,anchor=NW)
+					else:
+						cv.create_text(400,y,text = i['text'],font=h2_font,fill=fg)
 				else:
 					styles = i["attrib"]["style"].split(";")
 					text_align="left"
@@ -239,7 +242,10 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 					css_list["h3"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h3> rendered")
 				if not attrib_in_label("style",i["attrib"]):
-					cv.create_text(x,y,text = i['text'],font=h3_font,fill=fg,anchor=NW)
+					if not css_list["h3"]["text-align"] == "CENTER":
+						cv.create_text(x,y,text = i['text'],font=h3_font,fill=fg,anchor=NW)
+					else:
+						cv.create_text(400,y,text = i['text'],font=h3_font,fill=fg)
 				else:
 					styles = i["attrib"]["style"].split(";")
 					text_align="left"
@@ -265,7 +271,10 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 					css_list["h4"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h4> rendered")
 				if not attrib_in_label("style",i["attrib"]):
-					cv.create_text(x,y,text = i['text'],font=h4_font,fill=fg,anchor=NW)
+					if not css_list["h4"]["text-align"] == "CENTER":
+						cv.create_text(x,y,text = i['text'],font=h4_font,fill=fg,anchor=NW)
+					else:
+						cv.create_text(400,y,text = i['text'],font=h43_font,fill=fg)
 				else:
 					styles = i["attrib"]["style"].split(";")
 					text_align="left"
@@ -291,7 +300,10 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 					css_list["h5"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h5> rendered")
 				if not attrib_in_label("style",i["attrib"]):
-					cv.create_text(x,y,text = i['text'],font=h5_font,fill=fg,anchor=NW)
+					if not css_list["h5"]["text-align"] == "CENTER":
+						cv.create_text(x,y,text = i['text'],font=h5_font,fill=fg,anchor=NW)
+					else:
+						cv.create_text(400,y,text = i['text'],font=h5_font,fill=fg)
 				else:
 					styles = i["attrib"]["style"].split(";")
 					text_align="left"
@@ -317,7 +329,10 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 					css_list["h6"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h6> rendered")
 				if not attrib_in_label("style",i["attrib"]):
-					cv.create_text(x,y,text = i['text'],font=h6_font,fill=fg,anchor=NW)
+					if not css_list["h6"]["text-align"] == "CENTER":
+						cv.create_text(x,y,text = i['text'],font=h6_font,fill=fg,anchor=NW)
+					else:
+						cv.create_text(400,y,text = i['text'],font=h6_font,fill=fg)
 				else:
 					styles = i["attrib"]["style"].split(";")
 					text_align="left"
