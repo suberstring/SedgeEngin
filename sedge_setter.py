@@ -12,11 +12,8 @@ def alert_button_command():
 	print("DEBUG:SedgeMessageBox.Type="+msg1)
 def exit_sedge_button_command():
 	sys.exit()
-def get_version_button_command_browser():
-	msg1 = messagebox.showinfo(title="Sedge Information MessageBox", message="Sedge0.0.5:CSS and Label Update 2[2024/3/31,RELEASE:2024/4/6]")
-	print("DEBUG:SedgeMessageBox.Type=[DEBUGER]"+msg1)
-def get_version_button_command_kit():
-	msg1 = messagebox.showinfo(title="Sedge Information MessageBox", message="SedgeEngin0.5.4:CSS & Attribute Update[For CSS and Label Update 2]")
+def basic_alert():
+	msg1 = messagebox.showinfo(title="Sedge Information MessageBox", message="0")
 	print("DEBUG:SedgeMessageBox.Type=[DEBUGER]"+msg1)
 def deb_n():
 	print("SystemMessage:__state__=SEDGE.SIMPLE;__error__=SEDGE.NONE;")

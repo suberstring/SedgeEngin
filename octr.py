@@ -1,6 +1,6 @@
 from lxml import etree
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox,PhotoImage
 import requests as r
 from PIL import Image,ImageTk
 import platform,cv2,sys,math,re
@@ -27,10 +27,7 @@ def go():
 	if not "file://" in textv.get():
 		try:
 			ins = "(Windows NT;"+platform.architecture()[0]+")"
-			if header_s == "Sedge":
-				headers={"User-Agent":"Mozilla/5.0 "+ins+" SedgeBE/0.0.1 (KHTML) Sedge/0.0.0.10 Safari/537.36"}
-			elif header_s == "Chrome":
-				headers={"User-Agent":"'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'"}
+			headers={"User-Agent":"Mozilla/5.0 SedgeBasicEngin/0.0.1 (KHTML) Sedge/0.0.0.10 Safari/537.36"}
 			history.append(textv.get())
 			rendering(text=r.get(textv.get(),headers=headers).text)
 		except r.exceptions.ConnectionError:
@@ -77,9 +74,9 @@ h5_font=("微软雅黑",12,"bold")
 h6_font=("微软雅黑",10,"bold")
 a_font = ("微软雅黑",13,"underline")
 root = Tk()
-root.title("Sedge1-Test")
+root.title("Sedge Browser")
 root.geometry("800x540")
-root.configure(bg='white')
+root.configure(bg='red')
 cv =Canvas(root,width=8000,height=16000,background='white')
 cv.place(x=0,y=60)
 head = PanedWindow(height=60,width=800,orient=HORIZONTAL)
@@ -112,10 +109,10 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 		if fail:
 			print("Error[02]:Page ",website," does not exist")
 		true_tag = ["h1","p","ol","ul","li","body","footer","head","header","title","html","img",]
-		print("Task[0]:Page Created.")
+		print("Sedge:Page Created[Task0]")
 		html = etree.HTML(text)
 		res = html.xpath("//*")
-		print("Task[1]:Code Splited.")
+		print("Sedge:Code Splited[Task1]")
 		v = []
 		css_list = {}
 		pc = 0
@@ -170,6 +167,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				y+=35*(str(i["text"]).count("\n")+1)
 				x=5
 			elif i["tag"] == "style":
+				print("Task[2-"+i["id"]+"]:Label <style> rendered")
 				"""Return somthing like:css_list={"h1":{"text-align":"Center"}}"""
 				ty = i["text"].replace(" ","").replace("\t","").replace("\n","")
 				css_list = css_parser(ty)
@@ -357,12 +355,14 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				print("Task[2-"+i["id"]+"]:Label <title> rendered")
 				root.title(i["text"])
 			elif i["tag"] == "body":
+				print("Task[2-"+i["id"]+"]:Label <body> rendered")
 				if attrib_in_label("bgcolor",i["attrib"]):
 					v.create_rectangle(0,0,10000,10000,fill=i["attrib"]["bgcolor"])
 			elif i["tag"] == "ul" or i["tag"] == "menu":
 				print("Task[2-"+i["id"]+"]:Label <ul> rendered")
 				state = "ul"
 			elif i["tag"] == "a":
+				print("Task[2-"+i["id"]+"]:Label <a> rendered")
 				a_to = i["attrib"]["href"]
 				subli = Button(cv,text=i["text"], width=10,height=1,command=when_a,bg=bg,fg="blue")
 				cv.create_window(x,y,anchor="nw",window=subli)
@@ -387,11 +387,13 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				print("Task[2-"+i["id"]+"]:Label <ol> rendered")
 				state = "ol"
 			elif i["tag"] == "error":
-				print("Task[2-"+i["id"]+"]:Label <error> rendered")
+				print("Task[2-"+i["id"]+"]:Label <error> loaded")
 				wt = [i["attrib"]["warn"],i["attrib"]["info"],i["attrib"]["error_exit"]]
 			elif i["tag"] == "br":
 				y+=35
+				print("Task[2-"+i["id"]+"]:Label <br> rendered")
 			elif i["tag"] == "img":
+				print("Task[2-"+i["id"]+"]:Label <img> rendered")
 				try:
 					imgs = Image.open(i["attrib"]["src"])
 				except FileNotFoundError:
@@ -402,18 +404,21 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				cv.create_image(x,y,image=im,anchor="nw")
 				y+=imgs.height
 			elif i["tag"] == "table":
+				print("Task[2-"+i["id"]+"]:Label <table> rendered")
 				state="table"
 				table_loc = "header"
 			elif i["tag"] == "tr":
+				print("Task[2-"+i["id"]+"]:Label <tr> rendered")
 				cds += 1
 				y+=40
 				tx = 5
 			elif i["tag"] == "thead":
+				print("Task[2-"+i["id"]+"]:Label <thead> rendered")
 				table_loc = "header"
 				print("Task[2-"+i["id"]+"]:Label <thead> rendered")
 			elif i["tag"] == "tbody":
-				table_loc = "values"
 				print("Task[2-"+i["id"]+"]:Label <tbody> rendered")
+				table_loc = "values"
 			elif i["tag"] == "td":
 				print("Task[2-"+i["id"]+"]:Label <td> rendered")
 				if state == "table":
@@ -463,6 +468,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							else:
 								print("Unknown value of \"text-align\" in \"style\"")
 						tx+=150
+					print("Task[2-"+i["id"]+"]:Label <td> rendered")
 			elif i["tag"] == "button":
 				print("Task[2-"+i["id"]+"]:Label <button> rendered")
 				disa = NORMAL
@@ -474,10 +480,8 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						com = alert_button_command
 					if i["attrib"]["command"] == "SedgeKit.ApplicationControl.exit()":
 						com = exit_sedge_button_command
-					if i["attrib"]["command"] == "SedgeKit.ApplicationInfo.BrowserVersion()":
-						com = get_version_button_command_browser
-					if i["attrib"]["command"] == "SedgeKit.ApplicationInfo.EnginVersion()":
-						com = get_version_button_command_kit
+					if i["attrib"]["command"] == "SedgeKit.ApplicationControl.BasicAlert()":
+						com = basic_alert
 					if i["attrib"]["command"] == "SedgeKit.ApplicationControl.ReturnNow()":
 						com = deb_n
 				but = Button(cv,text=i["text"], width=math.floor(1.2*len(i["text"]))+1,height=1,command=com,bg=bg,state=disa)
@@ -485,7 +489,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				y+=40
 
 			elif i["tag"] in ["html"]:
-				pass
+				print("Task[2-"+i["id"]+"]:Label <"+i["tag"]+"> rendered")
 			else:
 				if wt[0] == "true":
 					if wt[1] == "more":
@@ -496,6 +500,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 	else:
 		text = text.split("**")
 		print(text)
+	print("Sedge:Rendered website successfully.")
 
 
 rendering(text=text)
