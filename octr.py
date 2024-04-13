@@ -28,7 +28,7 @@ def go():
 	if not "file://" in textv.get():
 		try:
 			ins = "(Windows NT;"+platform.architecture()[0]+")"
-			headers={"User-Agent":"Mozilla/5.0 SedgeBasicEngin/0.0.1 (KHTML) Sedge/0.0.0.10 Safari/537.36"}
+			headers={"User-Agent":"Mozilla/5.0 SedgeBasicEngin/Basic Sedge/0.0.0.10 Safari/537.36"}
 			history.append(textv.get())
 			rendering(text=r.get(textv.get(),headers=headers).text)
 		except r.exceptions.ConnectionError:
@@ -58,7 +58,7 @@ def go():
 				rendering(text=texts,fail=True,website=textv.get())
 def when_a():
 	global a_to
-	headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) SedgeBrowserEngin/0.0.1 (KHTML, like Gecko) Sedge/0.0.0.10"}
+	headers={"User-Agent":"Mozilla/5.0 SedgeBasicEngin/Basic Sedge/0.0.0.10 Safari/537.36"}
 	try:
 		rendering(text=r.get(a_to,headers=headers).text)
 	except r.exceptions.ConnectionError:
@@ -111,6 +111,7 @@ else:
 
 def rendering(text,fail=False,website=" ",typ="wbs"):
 	if True:
+		latest = None
 		global im,imgs
 		cv.delete("all")
 		global a_to
@@ -140,6 +141,8 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 		cds = 0
 		tx = 5
 		for i in v:
+			if latest == "td" and i["tag"] != "td":
+				y+=40
 			if i["tag"] == "p" or i["tag"] == "dt" or i["tag"] == "dd":
 				ls = 0
 				lns = ""
@@ -290,7 +293,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						cv.create_text(x,y,text = i['text'],font=h4_font,fill=fg,anchor=NW)
 					else:
 						print("Unknown value of \"text-align\" in \"style\"")
-				y+42
+				y+=45
 				x=5
 			elif i["tag"] == "h5":
 				if not inx(css_list,"h5"):
@@ -468,7 +471,9 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 							else:
 								print("Unknown value of \"text-align\" in \"style\"")
 						tx+=150
+						latest = "td"
 					print("Task[2-"+i["id"]+"]:Label <td> rendered")
+
 			elif i["tag"] == "button":
 				print("Task[2-"+i["id"]+"]:Label <button> rendered")
 				disa = NORMAL
@@ -488,12 +493,14 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				cv.create_window(x,y,anchor="nw",window=but)
 				y+=40
 
-			elif i["tag"] in ["html"]:
+			elif i["tag"] in ["html","head"]:
 				print("Task[2-"+i["id"]+"]:Label <"+i["tag"]+"> rendered")
+			elif i["tag"] == "script":
+				js_parser(i["text"])
 			else:
 				if wt[0] == "true":
 					if wt[1] == "more":
-						print("Warning[01]:Unknown Tag(Label) ",i["tag"],".")
+						print("Warning[",i["id"],"]:Unknown Tag(Label) ",i["tag"],".")
 						if wt[2] == "true":
 							sys.exit(1)
 

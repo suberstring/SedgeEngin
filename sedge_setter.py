@@ -1,6 +1,12 @@
 import sys
 from tkinter import messagebox
 
+def SEDGE_isnum(nm):
+	mm = True
+	for i in nm:
+		if not i in "0123456789":
+			mm = False
+	return mm
 def gets(dict,val):
 	for i in dict.keys():
 		if dict[i] == val:
@@ -43,4 +49,34 @@ def css_parser(text):
 	except IndexError:
 		pass
 
-print(css_parser("h1{text-align:center;}"))
+def js_parser(text):
+	mem = ""
+	clr,clrs,state = [],[],"DEF"
+	text = text.split("\n")
+	for i in text:
+		for j in i:
+			mem+=j
+			if mem == "console.log":
+				clr.append(mem[:])
+				mem = ""
+			elif mem[0] == "\"" and mem[-1] == "\"":
+				clr.append(mem[1:-1][:])
+				mem = ""
+			elif SEDGE_isnum(mem[:-1]):
+				clr.append(mem[:-1][:])
+				mem = mem[-1]
+			elif j == ";":
+				clr.append(mem[:-1])
+				mem = ""
+			#print(mem)
+	for i in clr:
+		if i == "console.log":
+			state = "output"
+		elif i!="":
+			if state == "output":
+				if i[1] == "\"":
+					n = i[2:-2]
+				else:
+					n = i[1:-1]
+				print("JavaScript:"+n)
+			state = "DEF"
