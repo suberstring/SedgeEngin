@@ -13,6 +13,7 @@ def attrib_in_label(be_s,sub):
 history = []
 a_to = "file://C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\first.html"
 header_s = "Sedge"
+now_in = "file://C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\first.html"
 def down():
 	cv.move("all", 0, -40)
 def up():
@@ -33,14 +34,17 @@ def go():
 		except r.exceptions.ConnectionError:
 			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html",encoding="utf-8") as d:
 				texts = d.read()
+				now_in = "C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html"
 				rendering(text=texts,fail=True)
 		except r.exceptions.MissingSchema:
 			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html",encoding="utf-8") as d:
 				texts = d.read()
+				now_in = "C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html"
 				rendering(text=texts,fail=True,website=textv.get())
 	else:
 		try:
 			with open(textv.get()[7:],encoding="utf-8") as d:
+				now_in = textv.get()[7:]
 				texts = d.read()
 				history.append(textv.get())
 				if textv.get()[7:].split(".")[1] == ".sedgeml":
@@ -50,6 +54,7 @@ def go():
 		except FileNotFoundError:
 			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\internet.html",encoding="utf-8") as d:
 				texts = d.read()
+				now_in = "C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\internet.html"
 				rendering(text=texts,fail=True,website=textv.get())
 def when_a():
 	global a_to
@@ -57,9 +62,12 @@ def when_a():
 	try:
 		rendering(text=r.get(a_to,headers=headers).text)
 	except r.exceptions.ConnectionError:
-		with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html") as d:
-			texts = d.read()
-			rendering(text=texts,fail=True)
+		try:
+			rendering(text=r.get(now_in+"/"+a_to,headers=headers).text)
+		except r.exceptions.ConnectionError:
+			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html") as d:
+				texts = d.read()
+				rendering(text=texts,fail=True)
 	except r.exceptions.MissingSchema:
 		with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html") as d:
 			texts = d.read()
@@ -172,7 +180,7 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				ty = i["text"].replace(" ","").replace("\t","").replace("\n","")
 				css_list = css_parser(ty)
 			elif i["tag"] == "code":
-				cv.create_rectangle(25,y-3,775,y+22.5*(str(i["text"]).count("\n")+1)+3,fill="#F8F8F2")
+				cv.create_rectangle(25,y-3,775,y+22.5*(str(i["text"]).count("\n")+1)+3,fill="#F8F8F8")
 				cv.create_text(x,y,text = "     "+str(i['text']).replace("\n","\n     "),font=p_font,fill=fg,anchor=NW)
 				y+=35*(str(i["text"]).count("\n")+1)
 				x=5
@@ -180,13 +188,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				if not inx(css_list,"h1"):
 					css_list["h1"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h1> rendered")
-				if not attrib_in_label("style",i["attrib"]):
-					if not css_list["h1"]["text-align"] == "CENTER":
-						cv.create_text(x,y,text = i['text'],font=h1_font,fill=fg,anchor=NW)
+				if True:
+					if attrib_in_label("style",i["attrib"]):
+						styles = i["attrib"]["style"].split(";")
 					else:
-						cv.create_text(400,y,text = i['text'],font=h1_font,fill=fg)
-				else:
-					styles = i["attrib"]["style"].split(";")
+						styles = ""
 					text_align="left"
 					for j in styles:
 						if "text-align" in j:
@@ -197,10 +203,9 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						cv.create_rectangle(x,y,1000,y+58,fill=backc)
 					if css_list["h1"]["text-align"] == "CENTER" or text_align == "center":
 						cv.create_text(400,y,text = i['text'],font=h1_font,fill=fg)
-
-					elif text_align == "right":
+					elif text_align == "right" or css_list["h1"]["text-align"] == "RIGHT":
 						cv.create_text(800,y,text = i['text'],font=h1_font,fill=fg,anchor=NE)
-					elif text_align == "left":
+					elif text_align == "left" or css_list["h1"]["text-align"] == "LEFT":
 						cv.create_text(x,y,text = i['text'],font=h1_font,fill=fg,anchor=NW)
 					else:
 						print("Unknown value of \"text-align\" in \"style\"")
@@ -210,13 +215,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				if not inx(css_list,"h2"):
 					css_list["h2"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h2> rendered")
-				if not attrib_in_label("style",i["attrib"]):
-					if not css_list["h2"]["text-align"] == "CENTER":
-						cv.create_text(x,y,text = i['text'],font=h2_font,fill=fg,anchor=NW)
+				if True:
+					if attrib_in_label("style",i["attrib"]):
+						styles = i["attrib"]["style"].split(";")
 					else:
-						cv.create_text(400,y,text = i['text'],font=h2_font,fill=fg)
-				else:
-					styles = i["attrib"]["style"].split(";")
+						styles = ""
 					text_align="left"
 					for j in styles:
 						if "text-align" in j:
@@ -227,9 +230,9 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						cv.create_rectangle(x,y,1000,y+52,fill=backc)
 					if text_align == "center" or css_list["h2"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h2_font,fill=fg)
-					elif text_align == "right":
+					elif text_align == "right" or css_list["h2"]["text-align"] == "RIGHT":
 						cv.create_text(800,y,text = i['text'],font=h2_font,fill=fg,anchor=NE)
-					elif text_align == "left":
+					elif text_align == "left" or css_list["h2"]["text-align"] == "LEFT":
 						cv.create_text(x,y,text = i['text'],font=h2_font,fill=fg,anchor=NW)
 					else:
 						print("Unknown value of \"text-align\" in \"style\"")
@@ -239,13 +242,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				if not inx(css_list,"h3"):
 					css_list["h3"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h3> rendered")
-				if not attrib_in_label("style",i["attrib"]):
-					if not css_list["h3"]["text-align"] == "CENTER":
-						cv.create_text(x,y,text = i['text'],font=h3_font,fill=fg,anchor=NW)
+				if True:
+					if attrib_in_label("style",i["attrib"]):
+						styles = i["attrib"]["style"].split(";")
 					else:
-						cv.create_text(400,y,text = i['text'],font=h3_font,fill=fg)
-				else:
-					styles = i["attrib"]["style"].split(";")
+						styles = ""
 					text_align="left"
 					for j in styles:
 						if "text-align" in j:
@@ -256,9 +257,9 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						cv.create_rectangle(x,y,1000,y+48,fill=backc)
 					if text_align == "center" or css_list["h3"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h3_font,fill=fg)
-					elif text_align == "right":
+					elif text_align == "right" or css_list["h3"]["text-align"] == "LEFT":
 						cv.create_text(800,y,text = i['text'],font=h3_font,fill=fg,anchor=NE)
-					elif text_align == "left":
+					elif text_align == "left" or css_list["h3"]["text-align"] == "RIGHT":
 						cv.create_text(x,y,text = i['text'],font=h3_font,fill=fg,anchor=NW)
 					else:
 						print("Unknown value of \"text-align\" in \"style\"")
@@ -268,13 +269,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				if not inx(css_list,"h4"):
 					css_list["h4"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h4> rendered")
-				if not attrib_in_label("style",i["attrib"]):
-					if not css_list["h4"]["text-align"] == "CENTER":
-						cv.create_text(x,y,text = i['text'],font=h4_font,fill=fg,anchor=NW)
+				if True:
+					if attrib_in_label("style",i["attrib"]):
+						styles = i["attrib"]["style"].split(";")
 					else:
-						cv.create_text(400,y,text = i['text'],font=h43_font,fill=fg)
-				else:
-					styles = i["attrib"]["style"].split(";")
+						styles = ""
 					text_align="left"
 					for j in styles:
 						if "text-align" in j:
@@ -285,9 +284,9 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						cv.create_rectangle(x,y,1000,y+42,fill=backc)
 					if text_align == "center" or css_list["h4"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h4_font,fill=fg)
-					elif text_align == "right":
+					elif text_align == "right" or css_list["h4"]["text-align"] == "RIGHT":
 						cv.create_text(800,y,text = i['text'],font=h4_font,fill=fg,anchor=NE)
-					elif text_align == "left":
+					elif text_align == "left" or css_list["h4"]["text-align"] == "LEFT":
 						cv.create_text(x,y,text = i['text'],font=h4_font,fill=fg,anchor=NW)
 					else:
 						print("Unknown value of \"text-align\" in \"style\"")
@@ -297,13 +296,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				if not inx(css_list,"h5"):
 					css_list["h5"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h5> rendered")
-				if not attrib_in_label("style",i["attrib"]):
-					if not css_list["h5"]["text-align"] == "CENTER":
-						cv.create_text(x,y,text = i['text'],font=h5_font,fill=fg,anchor=NW)
+				if True:
+					if attrib_in_label("style",i["attrib"]):
+						styles = i["attrib"]["style"].split(";")
 					else:
-						cv.create_text(400,y,text = i['text'],font=h5_font,fill=fg)
-				else:
-					styles = i["attrib"]["style"].split(";")
+						styles = ""
 					text_align="left"
 					for j in styles:
 						if "text-align" in j:
@@ -314,9 +311,9 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						cv.create_rectangle(x,y,1000,y+42,fill=backc)
 					if text_align == "center" or css_list["h5"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h5_font,fill=fg)
-					elif text_align == "right":
+					elif text_align == "right" or css_list["h5"]["text-align"] == "RIGHT":
 						cv.create_text(800,y,text = i['text'],font=h5_font,fill=fg,anchor=NE)
-					elif text_align == "left":
+					elif text_align == "left" or css_list["h5"]["text-align"] == "LEFT":
 						cv.create_text(x,y,text = i['text'],font=h5_font,fill=fg,anchor=NW)
 					else:
 						print("Unknown value of \"text-align\" in \"style\"")
@@ -326,13 +323,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				if not inx(css_list,"h6"):
 					css_list["h6"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h6> rendered")
-				if not attrib_in_label("style",i["attrib"]):
-					if not css_list["h6"]["text-align"] == "CENTER":
-						cv.create_text(x,y,text = i['text'],font=h6_font,fill=fg,anchor=NW)
+				if True:
+					if attrib_in_label("style",i["attrib"]):
+						styles = i["attrib"]["style"].split(";")
 					else:
-						cv.create_text(400,y,text = i['text'],font=h6_font,fill=fg)
-				else:
-					styles = i["attrib"]["style"].split(";")
+						styles = ""
 					text_align="left"
 					for j in styles:
 						if "text-align" in j:
@@ -343,9 +338,9 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						cv.create_rectangle(x,y,1000,y+32,fill=backc)
 					if text_align == "center" or css_list["h6"]["text-align"] == "CENTER":
 						cv.create_text(400,y,text = i['text'],font=h6_font,fill=fg)
-					elif text_align == "right" or css_list["h6"] == "RIGHT":
+					elif text_align == "right" or css_list["h6"]["text-align"] == "RIGHT":
 						cv.create_text(800,y,text = i['text'],font=h6_font,fill=fg,anchor=NE)
-					elif text_align == "left" or css_list["h6"] == "LEFT":
+					elif text_align == "left" or css_list["h6"]["text-align"] == "LEFT":
 						cv.create_text(x,y,text = i['text'],font=h6_font,fill=fg,anchor=NW)
 					else:
 						print("Unknown value of \"text-align\" in \"style\"")
@@ -383,6 +378,11 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 						y+=30
 						x=5
 						times+=1
+					else:
+						cv.create_text(x,y,text = str(i['text']),font=p_font,fill=fg,anchor=NW)
+						y+=30
+						x=5
+						print("Warning:< li >")
 			elif i["tag"] == "ol":
 				print("Task[2-"+i["id"]+"]:Label <ol> rendered")
 				state = "ol"

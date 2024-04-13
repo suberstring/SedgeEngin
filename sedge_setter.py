@@ -21,23 +21,26 @@ def deb_n():
 def ret(a):
 	return a
 def css_parser(text):
-	alls = []
-	allss = []
-	allsss,allssss = {},{}
-	temp = ""
-	tmp = list(text)
-	for i in tmp:
-		temp += i
-		if i == '}':
-			alls.append(temp)
-			temp = ""
-	for i in alls:
-		tmp = i.split("{")
-		allsss[tmp[0]],allssss[tmp[0]] = tmp[1][:-2],tmp[1][:-2]
-	for i in allsss.values():
-		ns = i.split(":")
-		ns = {ns[0]:ns[1]}
-		allssss[gets(allssss,i)] = ns
-	return allssss
+	try:
+		alls = []
+		allss = []
+		allsss,allssss = {},{}
+		temp = ""
+		tmp = list(text)
+		for i in tmp:
+			temp += i
+			if i == '}':
+				alls.append(temp)
+				temp = ""
+		for i in alls:
+			tmp = i.split("{")
+			allsss[tmp[0]],allssss[tmp[0]] = tmp[1][:-2],tmp[1][:-2]
+		for i in allsss.values():
+			ns = i.split(":")
+			ns = {ns[0]:ns[1]}
+			allssss[gets(allssss,i)] = ns
+		return allssss
+	except IndexError:
+		pass
 
 print(css_parser("h1{text-align:center;}"))
