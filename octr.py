@@ -3,9 +3,12 @@ from tkinter import *
 from tkinter import messagebox,PhotoImage
 import requests as r
 from PIL import Image,ImageTk
-import platform,cv2,sys,math,re
-from sedge_setter import *
+import platform,cv2,sys,math,re,json
+from JSandCSS import *
 
+with open("version.ini",encoding="utf-8") as rds:
+	i = json.load(rds) 
+ic = i["browser_version"]
 def inx(dic,v):
 	return v in list(dic.keys())
 def attrib_in_label(be_s,sub):
@@ -28,16 +31,16 @@ def go():
 	if not "file://" in textv.get():
 		try:
 			ins = "(Windows NT;"+platform.architecture()[0]+")"
-			headers={"User-Agent":"Mozilla/5.0 SedgeBasicEngin/Basic Sedge/0.0.0.10 Safari/537.36"}
+			headers={"User-Agent":"Mozilla/5.0 SedgeEngin/BasicStep1 Sedge/"+ic+" Safari/537.36"}
 			history.append(textv.get())
 			rendering(text=r.get(textv.get(),headers=headers).text)
 		except r.exceptions.ConnectionError:
-			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html",encoding="utf-8") as d:
+			with open("error.html",encoding="utf-8") as d:
 				texts = d.read()
 				now_in = "C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html"
 				rendering(text=texts,fail=True)
 		except r.exceptions.MissingSchema:
-			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html",encoding="utf-8") as d:
+			with open("error.html",encoding="utf-8") as d:
 				texts = d.read()
 				now_in = "C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html"
 				rendering(text=texts,fail=True,website=textv.get())
@@ -58,20 +61,20 @@ def go():
 				rendering(text=texts,fail=True,website=textv.get())
 def when_a():
 	global a_to
-	headers={"User-Agent":"Mozilla/5.0 SedgeBasicEngin/Basic Sedge/0.0.0.10 Safari/537.36"}
+	headers={"User-Agent":"Mozilla/5.0 SedgeBasicEngin/BasicStep1 Sedge/"+ic+" Safari/537.36"}
 	try:
 		rendering(text=r.get(a_to,headers=headers).text)
 	except r.exceptions.ConnectionError:
 		try:
 			rendering(text=r.get(now_in+"/"+a_to,headers=headers).text)
 		except r.exceptions.ConnectionError:
-			with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html") as d:
+			with open("error.html") as d:
 				texts = d.read()
 				rendering(text=texts,fail=True)
-	except r.exceptions.MissingSchema:
-		with open("C:\\Users\\Administrator\\Desktop\\pythons\\Sedge\\error.html") as d:
-			texts = d.read()
-			rendering(text=texts,fail=True,website=textv.get())
+		except r.exceptions.InvalidSchema:
+			with open("error.html") as d:
+				texts = d.read()
+				rendering(text=texts,fail=True,website=textv.get())
 f = 1
 p_font=("微软雅黑",13)
 h1_font=("微软雅黑",25,"bold")
@@ -245,27 +248,26 @@ def rendering(text,fail=False,website=" ",typ="wbs"):
 				if not inx(css_list,"h3"):
 					css_list["h3"] = {"text-align":None}
 				print("Task[2-"+i["id"]+"]:Label <h3> rendered")
-				if True:
-					if attrib_in_label("style",i["attrib"]):
-						styles = i["attrib"]["style"].split(";")
-					else:
-						styles = ""
-					text_align="left"
-					for j in styles:
-						if "text-align" in j:
-							text_align = j.split(":")[1]
-						elif "background-color" in j:
-							backc = j.split(":")[1]
-					if backc != "white":
-						cv.create_rectangle(x,y,1000,y+48,fill=backc)
-					if text_align == "center" or css_list["h3"]["text-align"] == "CENTER":
-						cv.create_text(400,y,text = i['text'],font=h3_font,fill=fg)
-					elif text_align == "right" or css_list["h3"]["text-align"] == "LEFT":
-						cv.create_text(800,y,text = i['text'],font=h3_font,fill=fg,anchor=NE)
-					elif text_align == "left" or css_list["h3"]["text-align"] == "RIGHT":
-						cv.create_text(x,y,text = i['text'],font=h3_font,fill=fg,anchor=NW)
-					else:
-						print("Unknown value of \"text-align\" in \"style\"")
+				if attrib_in_label("style",i["attrib"]):
+					styles = i["attrib"]["style"].split(";")
+				else:
+					styles = ""
+				text_align="left"
+				for j in styles:
+					if "text-align" in j:
+						text_align = j.split(":")[1]
+					elif "background-color" in j:
+						backc = j.split(":")[1]
+				if backc != "white":
+					cv.create_rectangle(x,y,1000,y+48,fill=backc)
+				if text_align == "center" or css_list["h3"]["text-align"] == "CENTER":
+					cv.create_text(400,y,text = i['text'],font=h3_font,fill=fg)
+				elif text_align == "right" or css_list["h3"]["text-align"] == "LEFT":
+					cv.create_text(800,y,text = i['text'],font=h3_font,fill=fg,anchor=NE)
+				elif text_align == "left" or css_list["h3"]["text-align"] == "RIGHT":
+					cv.create_text(x,y,text = i['text'],font=h3_font,fill=fg,anchor=NW)
+				else:
+					print("Unknown value of \"text-align\" in \"style\"")
 				y+=48
 				x=5
 			elif i["tag"] == "h4":
